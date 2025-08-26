@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getHealth, getRoot } from "./lib/api";
+import { APIError, getHealth, getRoot } from "./lib/api";
 
 export default function App() {
   const [status, setStatus] = useState("...");
@@ -9,17 +9,34 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [healthRes, rootRes] = await Promise.all([
-          getHealth().catch(() => ({ ok: false })),
-          getRoot().catch(() => ({ message: "" })),
-        ]);
-        
-        setStatus(healthRes.ok ? "ok" : "down");
-        setMsg(rootRes.message);
+        setLoading(true);
+
+        // Fetch health status
+        let healthStatus = "down";
+        try {
+          const healthRes = await getHealth();
+          healthStatus = healthRes.ok ? "ok" : "down";
+        } catch (error) {
+          console.warn("Health check failed:", error instanceof APIError ? error.message : error);
+          healthStatus = "down";
+        }
+
+        // Fetch root message
+        let message = "";
+        try {
+          const rootRes = await getRoot();
+          message = rootRes.message;
+        } catch (error) {
+          console.warn("Root endpoint failed:", error instanceof APIError ? error.message : error);
+          message = "Unable to connect to server";
+        }
+
+        setStatus(healthStatus);
+        setMsg(message);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Unexpected error:", error);
         setStatus("down");
-        setMsg("");
+        setMsg("Unable to connect to server");
       } finally {
         setLoading(false);
       }
@@ -48,10 +65,10 @@ export default function App() {
             {/* API Status Card */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  API Status
-                </h2>
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${statusBg} ${statusColor}`}>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">API Status</h2>
+                <div
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${statusBg} ${statusColor}`}
+                >
                   {loading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
@@ -62,9 +79,7 @@ export default function App() {
                   )}
                 </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300">
-                Backend health check status
-              </p>
+              <p className="text-gray-600 dark:text-gray-300">Backend health check status</p>
             </div>
 
             {/* Server Message Card */}
@@ -78,9 +93,7 @@ export default function App() {
                   Loading...
                 </div>
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
-                  {msg || "No message received"}
-                </p>
+                <p className="text-gray-600 dark:text-gray-300">{msg || "No message received"}</p>
               )}
             </div>
           </div>
