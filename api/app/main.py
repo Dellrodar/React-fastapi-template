@@ -22,9 +22,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     logger.info("Starting up FastAPI application")
     logger.info(f"Environment: {settings.APP_ENV}")
     logger.info(f"Port: {settings.PORT}")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down FastAPI application")
     # Allow time for cleanup
@@ -81,17 +81,11 @@ async def api_health() -> dict[str, bool]:
 @app.exception_handler(404)
 async def not_found_handler(request, exc) -> JSONResponse:
     """Handle 404 errors."""
-    return JSONResponse(
-        status_code=404,
-        content={"detail": "Not found"}
-    )
+    return JSONResponse(status_code=404, content={"detail": "Not found"})
 
 
 @app.exception_handler(500)
 async def internal_error_handler(request, exc) -> JSONResponse:
     """Handle 500 errors."""
     logger.error(f"Internal server error: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"}
-    )
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})

@@ -2,6 +2,7 @@
 """
 Development server script with better shutdown handling.
 """
+
 import signal
 import sys
 from pathlib import Path
@@ -20,11 +21,11 @@ def main():
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     # Ensure we're in the right directory
     api_dir = Path(__file__).parent
     sys.path.insert(0, str(api_dir))
-    
+
     # Run uvicorn with optimized settings
     config = uvicorn.Config(
         "app.main:app",
@@ -38,9 +39,9 @@ def main():
         use_colors=True,
         reload_dirs=[str(api_dir)],
     )
-    
+
     server = uvicorn.Server(config)
-    
+
     try:
         print("[API] Starting FastAPI development server...")
         print("[API] Available at: http://localhost:8000")
