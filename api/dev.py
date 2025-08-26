@@ -4,7 +4,6 @@ Development server script with better shutdown handling.
 """
 import signal
 import sys
-import asyncio
 from pathlib import Path
 
 import uvicorn

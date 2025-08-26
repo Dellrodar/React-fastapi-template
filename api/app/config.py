@@ -1,8 +1,6 @@
 """Application configuration using Pydantic Settings."""
 
-from typing import List, Union
-
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,7 +23,7 @@ class Settings(BaseSettings):
     )
     
     @property
-    def CORS_ORIGINS(self) -> List[str]:
+    def CORS_ORIGINS(self) -> list[str]:
         """Parse CORS origins from string."""
         return [origin.strip() for origin in self.CORS_ORIGINS_STR.split(',')]
     
